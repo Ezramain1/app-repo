@@ -1,0 +1,39 @@
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Chart.Name }}-db
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-db
+  serviceName: {{ .Chart.Name }}-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-db
+    spec:
+      containers:
+      - name: {{ .Values.image.db.name }}
+        image: {{ .Values.image.db.repository }}:{{ .Values.image.db.tag  }}
+        resources: {{- toYaml .Values.resources.db | nindent 10 }}
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Chart.Name }}-db-secret
+              key: rootPassword
+        ports:
+        - name: mysql
+          containerPort: 3306
+
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql-data
+    spec:
+      accessModes: 
+      - "ReadWriteOnce"
+      resources:
+        requests:
+          storage: 5Gi

@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookstack-node
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookstack-node
+  template:
+    metadata:
+      labels:
+        app: bookstack-node
+    spec:
+      containers:
+      - name: {{ .Values.image.node.name }}
+        image: {{ .Values.image.node.repository }}:{{ .Values.image.node.tag }}
+        workingDir: /app
+        command: ["/app/dev/docker/entrypoint.node.sh"]
+        resources:
+          requests:
+            cpu: {{ .Values.resources.node.requests.cpu }}
+            memory: {{ .Values.resources.node.requests.memory }}
+          limits:
+            cpu: {{ .Values.resources.node.limits.cpu }}
+            memory: {{ .Values.resources.node.limits.memory }}
+        volumeMounts:
+        - name: app-volume
+          mountPath: /app
+      volumes:
+      - name: app-volume
+        emptyDir: {}

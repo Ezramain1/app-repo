@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookstack-mailhog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookstack-mailhog
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-mailhog
+    spec:
+      containers:
+      - name: {{ .Values.image.mailhog.name }}
+        image: {{ .Values.image.mailhog.repository }}:{{ .Values.image.mailhog.tag }}
+        ports:
+        - name: http
+          containerPort: 8025
+        - name: smtp
+          containerPort: 1025
+        resources:
+          limits:
+            cpu: {{ .Values.resources.mailhog.limits.cpu }}
+            memory: {{ .Values.resources.mailhog.limits.memory }}
+          requests:
+            cpu: {{ .Values.resources.mailhog.requests.cpu }}
+            memory: {{ .Values.resources.mailhog.requests.memory }}
